@@ -700,39 +700,27 @@ class SetOpsModulePaper(nn.Module):
         a_S_b = self.subtract_op(a_b)
         b_S_a = self.subtract_op(b_a)
 
-        # a_S_b_b = self.subtract_op(a_S_b, b)
         a_S_b_b = None
-        # b_S_a_a = self.subtract_op(b_S_a, a)
         b_S_a_a = None
 
         a_I_b = self.intersect_op(a_b)
         b_I_a = self.intersect_op(b_a)
 
-        # a_S_b_I_a = self.subtract_op(a, b_I_a)
         a_S_b_I_a = None
-        # b_S_a_I_b = self.subtract_op(b, a_I_b)
         b_S_a_I_b = None
-        # a_S_a_I_b = self.subtract_op(a, a_I_b)
         a_S_a_I_b = None
-        # b_S_b_I_a = self.subtract_op(b, b_I_a)
         b_S_b_I_a = None
 
-        # a_I_b_b = self.intersect_op(a_I_b, b)
         a_I_b_b = None
-        # b_I_a_a = self.intersect_op(b_I_a, a)
         b_I_a_a = None
 
         a_U_b = self.union_op(a_b)
         b_U_a = self.union_op(b_a)
 
-        # a_U_b_b = self.union_op(a_U_b, b)
         a_U_b_b = None
-        # b_U_a_a = self.union_op(b_U_a, a)
         b_U_a_a = None
 
-        # out_a = self.union_op(a_S_b_I_a, a_I_b)
         out_a = None
-        # out_b = self.union_op(b_S_a_I_b, b_I_a)
         out_b = None
 
         return out_a, out_b, a_S_b, b_S_a, a_U_b, b_U_a, a_I_b, b_I_a, \

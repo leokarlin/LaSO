@@ -5,7 +5,7 @@ from collections import defaultdict
 import itertools
 import logging
 import os
-import pickle
+import pickle as pkl
 import random
 
 from pycocotools.coco import COCO
@@ -14,6 +14,7 @@ from PIL import Image
 import torch
 from torch.utils.data import Dataset
 from tqdm import trange
+import torchvision.transforms as transforms
 
 
 cuda = True if torch.cuda.is_available() else False
@@ -614,139 +615,186 @@ class CocoDatasetTriplets(CocoDatasetPairs):
                weight4, imgs[4], weight5, imgs[5], weight6
 
 
-class CocoDatasetAugment(CocoDataset):
-    """Create samples for augmentation train/tests."""
+class CocoDatasetAugmentation(Dataset):
+    """Coco dataset."""
 
-    def __init__(
-            self,
-            root_dir,
-            used_inds_path,
-            set_name='train2014',
-            transform=None,
-            return_ids=False,
-            debug_size=-1,
-            ):
-
+    def __init__(self, root_dir, class_cap, fake_limit, batch_size, used_ind_path, class_ind_dict_path, model_name, set_name='train2014', transform=None):
+        """
+        Args:
+            root_dir (string): COCO directory.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
         self.root_dir = root_dir
+        self.classCap = class_cap
         self.set_name = set_name
         self.transform = transform
-        self.unseen_set = True
-        self.return_ids = return_ids
-        self.deubg_size = debug_size
+        self.batchSize = batch_size
 
         self.coco = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
         self.image_ids = self.coco.getImgIds()
-
-        with open(used_inds_path, 'rb') as f:
-            self.used_image_idxs = pickle.load(f)
-
-        self.setup_classes()
+        random.seed(0)
+        tmp = random.sample(range(80), 64)
+        tmp.sort()
+        self.classListInv = tmp
+        classList = [idx for idx in range(80) if idx not in tmp]
+        classList.sort()
+        print("Class list: ", classList)
+        self.classList = classList
         self.load_classes()
+        self.classes_num = 80
+        self.class_histogram = np.zeros(80)
+        # all 80 classes
+        ClassIdxDict80 = {el: [] for el in range(80)}
 
-        self.calc_indices()
-
-    def calc_indices(self):
-        """Pre-calculate all indices.
-
-        Note:
-            Should be called at the start of each epoch.
-        """
-
-        self.fake_pairs = list(itertools.combinations(self.used_image_idxs, 2))
-
-        #
-        # Map classes/labels to image indices.
-        #
-        self.labels_to_img_ids = defaultdict(list)
-        for image_idx in self.used_image_idxs:
-            image_id = self.image_ids[image_idx]
-            labels = self.load_labels(image_id)
+        one_label = 0
+        class16Indices = []
+        for idx in range(len(self.image_ids)):
+            labels = self.load_annotations(idx)
+            if len(labels) == 1:
+                one_label += 1
             if not labels:
                 continue
+            filteredLabels = [label for label in labels if label in self.classList]
+            if len(filteredLabels) > 0:
+                class16Indices += [idx]
+            for label in set(labels):
+                ClassIdxDict80[label] += [idx]
+        self.class16Indices = class16Indices
+        self.ClassIdxDict80 = ClassIdxDict80
+        with open(class_ind_dict_path, 'rb') as f:
+            ClassIdxDict16 = pkl.load(f)
+        for key in ClassIdxDict16.keys():
+            print("values number for key {}: {}".format(key, len(ClassIdxDict16[key])))
+        print("ClassIdxDict16 keys: ", ClassIdxDict16.keys())
+        print("ClassIdxDict16 values: ", ClassIdxDict16.values())
+        self.ClassIdxDict16 = ClassIdxDict16
+        print("img num: ", len(self.image_ids))
+        with open(used_ind_path, 'rb') as f:
+            usedIndices = pkl.load(f)
+        self.usedIndices = usedIndices
+        print("used indices len: ", len(usedIndices))
+        print("used indices: ", usedIndices)
+        self.class_histogram = np.zeros(80)
+        self.classes_num = 80
+        fakeVectorsPairs = []
+        if set_name == 'val2014':
+            return
+        combinations = np.array(list(itertools.combinations(usedIndices, 2)))
 
-            for label in labels:
-                self.labels_to_img_ids[label].append(image_id)
-
-        self.class_histogram = np.zeros(COCO_CLASS_NUM)
-
-        #
-        # Pre-process the list of training samples (A, B images for set-operations).
-        # Note:
-        # The length of the pairs list is set arbitrarily to the number of the
-        # images in the original dataset.
-        #
-        logging.info("Calculating indices.")
-        self.images_indices = []
-        for i in trange(len(self)):
-            self.images_indices.append(self.calc_index(i))
-
-    def calc_index(self, idx):
-        """Calculate samples for training."""
-
-        fake_idx1, fake_idx2 = self.fake_pairs[idx % len(self.fake_pairs)]
-        fake_id1, fake_id2 = self.image_ids[fake_idx1], self.image_ids[fake_idx2]
-        fake_labels1 = self.load_labels(fake_id1)
-        fake_labels2 = self.load_labels(fake_id2)
-        fake_labels1 = labels_list_to_1hot(fake_labels1, self.labels_list)
-        fake_labels2 = labels_list_to_1hot(fake_labels2, self.labels_list)
-
-        while True:
-            #
-            # The index is select randomly among the labels with the minimum
-            # samples so far.
-            #
-            min_label = np.random.choice(self.labels_list)
-            for ind in range(COCO_CLASS_NUM):
-                if ind in self.labels_list:
-                    if self.class_histogram[ind] < self.class_histogram[min_label]:
-                        min_label = ind
-
-            #
-            # Select an image with the selected label.
-            #
-            tmp_idx = idx % len(self.labels_to_img_ids[min_label])
-            img_id1 = self.labels_to_img_ids[min_label][tmp_idx]
-            labels1 = self.load_labels(img_id1)
-
-            #
-            # Note:
-            # I am not sure that there is a need to check that there is a need to check for a label here.
-            #
-            if labels1:
+        fakeCount = 0
+        for pair in combinations:
+            fakeVectorsPairs += [pair]
+            fakeCount += 1
+            if fakeCount >= fake_limit:
                 break
+        self.fakeVectorsPairs = fakeVectorsPairs
+        self.fakeCount = fakeCount
+        batches_num = len(self.usedIndices)/self.batchSize
+        self.fakeBatchSize = int(fakeCount / batches_num)
 
-            idx = np.random.randint(len(self))
+    def load_classes(self):
+        # load class names (name -> label)
+        categories = self.coco.loadCats(self.coco.getCatIds())
+        categories.sort(key=lambda x: x['id'])
+        self.label_to_category = {i: c['id'] for i, c in enumerate(categories)}
+        self.category_to_label = {v: k for k, v in self.label_to_category.items()}
+        self.label_to_class = {i: c['name'] for i, c in enumerate(categories)}
+        self.class_to_label = {v: k for k, v in self.label_to_class.items()}
+        self.classes = {}
+        self.coco_labels = {}
+        self.coco_labels_inverse = {}
+        for c in categories:
+            self.coco_labels[len(self.classes)] = c['id']
+            self.coco_labels_inverse[c['id']] = len(self.classes)
+            self.classes[c['name']] = len(self.classes)
 
-        labels1 = labels_list_to_1hot(labels1, self.labels_list)
-
-        one_indices = np.where(labels1 == 1)[0]
-        self.class_histogram[one_indices] += 1
-
-        return self.image_id_to_path(img_id1), labels1, img_id1, \
-               self.image_id_to_path(fake_id1), fake_labels1, fake_id1, \
-               self.image_id_to_path(fake_id2), fake_labels2, fake_id2
-
-    def __getitem__(self, idx):
-
-        path1, labels1, id1, path2, labels2, id2, path3, labels3, id3 = self.images_indices[idx]
-
-        img1 = load_image(path1)
-        img2 = load_image(path2)
-        img3 = load_image(path3)
-
-        if self.transform:
-            img1 = self.transform(img1)
-            img2 = self.transform(img2)
-            img3 = self.transform(img3)
-
-        if self.return_ids:
-            return img1, labels1, id1, img2, labels2, id2, img3, labels3, id3
-
-        return img1, labels1, img2, labels2, img3, labels3
+        # also load the reverse (label -> name)
+        self.labels = {}
+        for key, value in self.classes.items():
+            self.labels[value] = key
 
     def __len__(self):
+        if self.set_name == 'train2014':
+            res = len(self.usedIndices)
+        else:
+            res = len(self.image_ids)
+        return res
 
-        if self.deubg_size > 0:
-            return self.deubg_size
+    def __getitem__(self, idx):
+        found = False
+        while not found:
+            tmp = np.random.randint(len(self.classList))
+            min_label = self.classList[tmp]
+            for ind in range(self.classes_num):
+                if ind in self.classList:
+                    if self.class_histogram[ind] < self.class_histogram[min_label]:
+                        min_label = ind
+            class_name1 = min_label
+            if self.set_name == 'val2014':
+                tmpIdx1 = idx % len(self.ClassIdxDict80[class_name1])
+                idx1 = self.ClassIdxDict80[class_name1][tmpIdx1]
+                labels1 = self.load_annotations(idx1)
+            else:
+                tmpIdx1 = idx % len(self.ClassIdxDict16[class_name1])
+                idx1 = self.ClassIdxDict16[class_name1][tmpIdx1]
+                labels1 = self.load_annotations(idx1)
+            labels1 = list(set(labels1))
+            filteredLabels = [label for label in labels1 if label in self.classList]
+            if len(filteredLabels) == 0:
+                idx = np.random.randint(self.__len__())
+            else:
+                found = True
 
-        return 4 * len(self.fake_pairs)
+        labels = labels_list_to_1hot(filteredLabels, self.classList)
+        one_indices = np.where(labels == 1)
+        one_indices = one_indices[0]
+        self.class_histogram[one_indices] += 1
+        img = self.load_image(idx1)
+        if self.transform:
+            img = self.transform(img)
+        labels = labels_list_to_1hot(filteredLabels, self.classList)
+        torLab = torch.from_numpy(labels)
+        return img, torLab
+
+    def load_image(self, image_index):
+        image_info = self.coco.loadImgs(self.image_ids[image_index])[0]
+        path = os.path.join(self.root_dir, 'images', self.set_name, image_info['file_name'])
+        img = Image.open(path)
+
+        if len(np.array(img).shape) == 2:
+            img = img.convert('RGB')
+
+        return img
+
+    def load_annotations(self, image_index):
+        # get ground truth annotations
+        annotations_ids = self.coco.getAnnIds(imgIds=self.image_ids[image_index], iscrowd=False)
+        annotations = []
+
+        # some images appear to miss annotations (like image with id 257034)
+        if len(annotations_ids) == 0:
+            return annotations
+
+        # parse annotations
+        coco_annotations = self.coco.loadAnns(annotations_ids)
+        for idx, a in enumerate(coco_annotations):
+            # some annotations have basically no width / height, skip them
+            if a['bbox'][2] < 1 or a['bbox'][3] < 1:
+                continue
+            annotations += [self.coco_label_to_label(a['category_id'])]
+
+        return annotations
+
+    def coco_label_to_label(self, coco_label):
+        return self.coco_labels_inverse[coco_label]
+
+    def label_to_coco_label(self, label):
+        return self.coco_labels[label]
+
+    def image_aspect_ratio(self, image_index):
+        image = self.coco.loadImgs(self.image_ids[image_index])[0]
+        return float(image['width']) / float(image['height'])
+
+    def num_classes(self):
+        return 80
