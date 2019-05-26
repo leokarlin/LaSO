@@ -1,6 +1,4 @@
 """Calculate retrieval on the seen classes of COCO."""
-import os
-# os.environ['CUDA_VISIBLE_DEVICES'] = "1"
 import logging
 from more_itertools import chunked
 import numpy as np
@@ -33,7 +31,6 @@ from CCC import setupCUDAdevice
 
 from ignite._utils import convert_tensor
 
-#np.seterr(all='raise')
 
 setupCUDAdevice()
 
@@ -75,21 +72,23 @@ class Main(Experiment):
     #
     # Run setup
     #
-    batch_size = Int(256, config=True, help="Batch size.")
-    num_workers = Int(8, config=True, help="Number of workers to use for data loading.")
-    device = Unicode("cuda", config=True, help="Use `cuda` backend.")
+    batch_size = Int(256, config=True, help="Batch size. default: 256")
+    num_workers = Int(8, config=True, help="Number of workers to use for data loading. default: 8")
+    n_jobs = Int(-1, config=True, help="Number of workers to use for data loading. default: -1")
+    device = Unicode("cuda", config=True, help="Use `cuda` backend. default: cuda")
 
     #
     # Hyper parameters.
     #
     unseen = Bool(False, config=True, help="Test on unseen classes.")
-    skip_tests = Int(1, config=True, help="How many test pairs to skip.")
-    debug_size = Int(-1, config=True, help="Reduce dataset sizes. This is useful when developing the script.")
+    skip_tests = Int(1, config=True, help="How many test pairs to skip? for better runtime. default: 1")
+    debug_size = Int(-1, config=True, help="Reduce dataset sizes. This is useful when developing the script. default -1")
 
     #
     # Resume previous run parameters.
     #
-    resume_path = Unicode(u"/dccstor/alfassy/finalLaSO/code_release/paperModels", config=True, help="Resume from checkpoint file (requires using also '--resume_epoch'.")
+    resume_path = Unicode(u"/dccstor/alfassy/finalLaSO/code_release/paperModels", config=True,
+                          help="Resume from checkpoint file (requires using also '--resume_epoch'.")
     resume_epoch = Int(0, config=True, help="Epoch to resume (requires using also '--resume_path'.")
     init_inception = Bool(True, config=True, help="Initialize the inception networks using paper's network.")
 
@@ -97,7 +96,7 @@ class Main(Experiment):
     # Network hyper parameters
     #
     base_network_name = Unicode("Inception3", config=True, help="Name of base network to use.")
-    avgpool_kernel = Int(7, config=True,
+    avgpool_kernel = Int(10, config=True,
                          help="Size of the last avgpool layer in the Resnet. Should match the cropsize.")
     classifier_name = Unicode("Inception3Classifier", config=True, help="Name of classifier to use.")
     sets_network_name = Unicode("SetOpsResModule", config=True, help="Name of setops module to use.")
@@ -107,9 +106,9 @@ class Main(Experiment):
     ops_layer_num = Int(1, config=True, help="Ops Module layer num.")
     ops_latent_dim = Int(1024, config=True, help="Ops Module inner latent dim.")
     setops_dropout = Float(0, config=True, help="Dropout ratio of setops module.")
-    crop_size = Int(224, config=True, help="Size of input crop (Resnet 224, inception 299).")
-    scale_size = Int(350, config=True, help="Size of input scale for data augmentation")
-    paper_reproduce = Bool(False, config=True, help="Use paper reproduction settings.")
+    crop_size = Int(299, config=True, help="Size of input crop (Resnet 224, inception 299).")
+    scale_size = Int(350, config=True, help="Size of input scale for data augmentation. default: 350")
+    paper_reproduce = Bool(False, config=True, help="Use paper reproduction settings. default: False")
 
     #
     # Metric
@@ -207,51 +206,47 @@ class Main(Experiment):
         ids_b_all = np.concatenate(ids_b_list, axis=0)
         del ids_a_list, ids_b_list
 
-        if self.paper_reproduce:
-            a_S_b_list, b_S_a_list = [], []
-            target_a_S_b_list, target_b_S_a_list = [], []
-            ids_a_list, ids_b_list = [], []
-            with torch.no_grad():
-                for batch in tqdm(pair_loader_sub):
-                    input_a, input_b, target_a, target_b, id_a, id_b = _prepare_batch(batch, device=self.device)
+        a_S_b_list, b_S_a_list = [], []
+        target_a_S_b_list, target_b_S_a_list = [], []
+        ids_a_list, ids_b_list = [], []
+        with torch.no_grad():
+            for batch in tqdm(pair_loader_sub):
+                input_a, input_b, target_a, target_b, id_a, id_b = _prepare_batch(batch, device=self.device)
 
-                    ids_a_list.append(id_a.cpu().numpy())
-                    ids_b_list.append(id_b.cpu().numpy())
+                ids_a_list.append(id_a.cpu().numpy())
+                ids_b_list.append(id_b.cpu().numpy())
 
-                    #
-                    # Apply the classification model
-                    #
-                    embed_a = base_model(input_a).view(input_a.size(0), -1)
-                    embed_b = base_model(input_b).view(input_b.size(0), -1)
+                #
+                # Apply the classification model
+                #
+                embed_a = base_model(input_a).view(input_a.size(0), -1)
+                embed_b = base_model(input_b).view(input_b.size(0), -1)
 
-                    #
-                    # Apply the setops model.
-                    #
-                    outputs_setopt = setops_model(embed_a, embed_b)
-                    a_S_b, b_S_a, a_U_b, b_U_a, a_I_b, b_I_a = \
-                        outputs_setopt[2:8]
+                #
+                # Apply the setops model.
+                #
+                outputs_setopt = setops_model(embed_a, embed_b)
+                a_S_b, b_S_a, a_U_b, b_U_a, a_I_b, b_I_a = \
+                    outputs_setopt[2:8]
 
-                    a_S_b_list.append(a_S_b.cpu().numpy())
-                    b_S_a_list.append(b_S_a.cpu().numpy())
+                a_S_b_list.append(a_S_b.cpu().numpy())
+                b_S_a_list.append(b_S_a.cpu().numpy())
 
-                    #
-                    # Calculate the target setops operations
-                    #
-                    target_a = target_a.type(torch.cuda.ByteTensor)
-                    target_b = target_b.type(torch.cuda.ByteTensor)
+                #
+                # Calculate the target setops operations
+                #
+                target_a = target_a.type(torch.cuda.ByteTensor)
+                target_b = target_b.type(torch.cuda.ByteTensor)
 
-                    target_a_I_b = target_a & target_b
-                    target_a_S_b = target_a & ~target_a_I_b
-                    target_b_S_a = target_b & ~target_a_I_b
+                target_a_I_b = target_a & target_b
+                target_a_S_b = target_a & ~target_a_I_b
+                target_b_S_a = target_b & ~target_a_I_b
 
-                    target_a_S_b_list.append(target_a_S_b.type(torch.cuda.FloatTensor).cpu().numpy())
-                    target_b_S_a_list.append(target_b_S_a.type(torch.cuda.FloatTensor).cpu().numpy())
+                target_a_S_b_list.append(target_a_S_b.type(torch.cuda.FloatTensor).cpu().numpy())
+                target_b_S_a_list.append(target_b_S_a.type(torch.cuda.FloatTensor).cpu().numpy())
 
-            ids_a_sub = np.concatenate(ids_a_list, axis=0)
-            ids_b_sub = np.concatenate(ids_b_list, axis=0)
-        else:
-            ids_a_sub = ids_a_all.copy()
-            ids_b_sub = ids_b_all.copy()
+        ids_a_sub = np.concatenate(ids_a_list, axis=0)
+        ids_b_sub = np.concatenate(ids_b_list, axis=0)
 
         def score_outputs(output_chunk, target_chunk, ids_a_chunk, ids_b_chunk, val_labels, K=5):
             _, inds_chunk = tree.query(np.array(output_chunk), k=K+2)
@@ -421,24 +416,22 @@ class Main(Experiment):
             shuffle=False,
             num_workers=self.num_workers
         )
-        if self.paper_reproduce:
-            pair_dataset_sub = CocoDatasetPairsSub(
-                root_dir="/tmp/aa/coco",
-                set_name='val2014',
-                unseen_set=self.unseen,
-                transform=val_transform,
-                return_ids=True,
-                debug_size=self.debug_size
-            )
+        pair_dataset_sub = CocoDatasetPairsSub(
+            root_dir="/tmp/aa/coco",
+            set_name='val2014',
+            unseen_set=self.unseen,
+            transform=val_transform,
+            return_ids=True,
+            debug_size=self.debug_size
+        )
 
-            pair_loader_sub = DataLoader(
-                pair_dataset_sub,
-                batch_size=self.batch_size,
-                shuffle=False,
-                num_workers=self.num_workers
-            )
-        else:
-            pair_loader_sub = None
+        pair_loader_sub = DataLoader(
+            pair_dataset_sub,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers
+        )
+
         return val_loader, pair_loader, pair_loader_sub
 
     def setup_model(self):

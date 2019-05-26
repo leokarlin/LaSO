@@ -63,6 +63,7 @@ random_state  = np.random.RandomState(0)
 #import warnings
 #warnings.filterwarnings("error")
 
+
 def _prepare_batch(batch, device=None):
     return [convert_tensor(x, device=device) for x in batch]
 
