@@ -25,8 +25,6 @@ from experiment import Experiment
 from CCC import setupCUDAdevice
 
 setupCUDAdevice()
-# PAPER_MODEL = "/dccstor/alfassy/saved_models/inception_trainCocoIncHalf642018.10.9.13:44epoch:30"
-# PAPER_DISCRIMINATOR = "/dccstor/alfassy/saved_models/classifierCocoFeatureClass162018.10.16.19:10best"
 
 from ignite._utils import convert_tensor
 
@@ -46,16 +44,16 @@ class Main(Experiment):
     #
     # Run setup
     #
-    batch_size = Int(256, config=True, help="Batch size.")
-    num_workers = Int(8, config=True, help="Number of workers to use for data loading.")
-    device = Unicode("cuda", config=True, help="Use `cuda` backend.")
+    batch_size = Int(256, config=True, help="Batch size. default: 256")
+    num_workers = Int(8, config=True, help="Number of workers to use for data loading. default: 8")
+    device = Unicode("cuda", config=True, help="Use `cuda` backend. default: cuda")
 
     #
     # Hyper parameters.
     #
     unseen = Bool(False, config=True, help="Test on unseen classes.")
-    skip_tests = Int(1, config=True, help="How many test pairs to skip? for better runtime")
-    debug_size = Int(-1, config=True, help="Reduce dataset sizes. This is useful when developing the script.")
+    skip_tests = Int(1, config=True, help="How many test pairs to skip? for better runtime. default: 1")
+    debug_size = Int(-1, config=True, help="Reduce dataset sizes. This is useful when developing the script. default -1")
 
     #
     # Resume previous run parameters.
@@ -68,7 +66,7 @@ class Main(Experiment):
     # Network hyper parameters
     #
     base_network_name = Unicode("Inception3", config=True, help="Name of base network to use.")
-    avgpool_kernel = Int(7, config=True,
+    avgpool_kernel = Int(10, config=True,
                          help="Size of the last avgpool layer in the Resnet. Should match the cropsize.")
     classifier_name = Unicode("Inception3Classifier", config=True, help="Name of classifier to use.")
     sets_network_name = Unicode("SetOpsResModule", config=True, help="Name of setops module to use.")
@@ -78,12 +76,13 @@ class Main(Experiment):
     ops_layer_num = Int(1, config=True, help="Ops Module layers num.")
     ops_latent_dim = Int(1024, config=True, help="Ops Module inner latent dim.")
     setops_dropout = Float(0, config=True, help="Dropout ratio of setops module.")
-    crop_size = Int(224, config=True, help="Size of input crop (Resnet 224, inception 299).")
-    scale_size = Int(350, config=True, help="Size of input scale for data augmentation")
-    paper_reproduce = Bool(False, config=True, help="Use paper reproduction settings.")
-    discriminator_name = Unicode("AmitDiscriminator", config=True, help="Name of discriminator (unseen classifier) to use.")
-    embedding_dim = Int(2048, config=True, help="Dimensionality of the LaSO space.")
-    classifier_latent_dim = Int(2048, config=True, help="Dimensionality of the classifier latent space.")
+    crop_size = Int(299, config=True, help="Size of input crop (Resnet 224, inception 299).")
+    scale_size = Int(350, config=True, help="Size of input scale for data augmentation. default: 350")
+    paper_reproduce = Bool(False, config=True, help="Use paper reproduction settings. default: False")
+    discriminator_name = Unicode("AmitDiscriminator", config=True,
+                                 help="Name of discriminator (unseen classifier) to use. default: AmitDiscriminator")
+    embedding_dim = Int(2048, config=True, help="Dimensionality of the LaSO space. default:2048")
+    classifier_latent_dim = Int(2048, config=True, help="Dimensionality of the classifier latent space. default:2048")
 
     def run(self):
 
@@ -125,8 +124,6 @@ class Main(Experiment):
                 # Apply the setops model.
                 #
                 outputs_setopt = setops_model(embed_a, embed_b)
-                # fake_a, fake_b, a_S_b, b_S_a, a_U_b, b_U_a, a_I_b, b_I_a = \
-                #     [classifier(o) for o in outputs_setopt[:8]]
                 a_S_b, b_S_a, a_U_b, b_U_a, a_I_b, b_I_a = \
                     [classifier(o) for o in outputs_setopt[2:8]]
 
