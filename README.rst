@@ -91,6 +91,9 @@ $ python test_retrieval.py --unseen=False --resume_path=/dccstor/alfassy/finalLa
 
 Toggle unseen to True to test for unseen during training classes
 
+Expected results
+^^^^^^^^^^^^^^^^
+
 .. image:: https://i.ibb.co/GkYdnM2/readme-results-table.png
 
 
