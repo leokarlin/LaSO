@@ -90,3 +90,6 @@ $ cd scripts_coco
 $ python test_retrieval.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels/resnet_model/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10 --metric=minkowski --tree_type=BallTree
 
 Toggle unseen to True to test for unseen during training classes
+
+.. image:: https://ibb.co/1Ky07Xq
+
