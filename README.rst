@@ -20,7 +20,7 @@ Setup
 ------------------
 - Create a conda environment which will automatically install necessary packages.
 
-   $ conda create --name myenv --file spec-file.txt ::
+  .. codeblock:: $ conda create --name myenv --file spec-file.txt ::
 
 - Download the coco data, save it and point to it in the script.
 - Install the experiment package from: link
