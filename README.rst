@@ -43,9 +43,9 @@ Train LaSO from scratch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Leave variables which have a default value to their default value.
 
-$ cd scripts_coco
+ $ cd scripts_coco
 
-$ python train_setops_stripped.py --inception_transform_input=False --resume_path=/dccstor/faceid/results/train_coco_resnet/0198_968f3cd/1174695/190117_081837 --resume_epoch=49 --init_inception=False --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --base_network_name=resnet50 --crop_size=224 --epochs=5 --train_base=False
+ $ python train_setops_stripped.py --inception_transform_input=False --resume_path=/dccstor/faceid/results/train_coco_resnet/0198_968f3cd/1174695/190117_081837 --resume_epoch=49 --init_inception=False --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --base_network_name=resnet50 --crop_size=224 --epochs=5 --train_base=False
 
 Reproduce the paper's results
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,9 +54,9 @@ To test mAP precision do:
 
 Leave variables which have a default value to their default value.
 
-$ cd scripts_coco
+ $ cd scripts_coco
 
-$ python test_precision.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True
+ $ python test_precision.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True
 
 Toggle unseen to True to test for unseen during training classes
 
