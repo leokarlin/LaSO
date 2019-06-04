@@ -14,7 +14,7 @@ will convince more researchers to look into this interesting problem.
 
 The code here includes a training script to train new LaSO networks and test scripts for both precision and image retrieval.
 
-Running the code
+Running the code 
 ==================
 Setup
 ------------------
