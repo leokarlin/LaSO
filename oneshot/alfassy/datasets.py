@@ -618,7 +618,7 @@ class CocoDatasetTriplets(CocoDatasetPairs):
 class CocoDatasetAugmentation(Dataset):
     """Coco dataset."""
 
-    def __init__(self, root_dir, class_cap, fake_limit, batch_size, used_ind_path, class_ind_dict_path, model_name, set_name='train2014', transform=None):
+    def __init__(self, root_dir, class_cap, fake_limit, batch_size, used_ind_path, class_ind_dict_path, set_name='train2014', transform=None):
         """
         Args:
             root_dir (string): COCO directory.
@@ -691,7 +691,12 @@ class CocoDatasetAugmentation(Dataset):
         self.fakeVectorsPairs = fakeVectorsPairs
         self.fakeCount = fakeCount
         batches_num = len(self.usedIndices)/self.batchSize
-        self.fakeBatchSize = int(fakeCount / batches_num)
+        fakeBatchSize = fakeCount / batches_num
+        if class_cap == 5:
+            fakeBatchSize = int(fakeBatchSize / 4)
+        else:
+            fakeBatchSize = int(fakeBatchSize)
+        self.fakeBatchSize = fakeBatchSize
 
     def load_classes(self):
         # load class names (name -> label)
