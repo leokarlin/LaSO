@@ -20,7 +20,7 @@ Setup
 ------------------
 - Create a conda environment which will automatically install necessary packages.
 
-
+safadsf
  $ conda create --name myenv --file spec-file.txt
 
 - Download the coco data, save it and point to it in the script.
