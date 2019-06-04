@@ -1,37 +1,111 @@
-=======
-oneshot
-=======
+***************************************************************************
+LaSO: Label-Set Operations networks for multi-label few-shot learning
+***************************************************************************
+Overview
+============
+This repository contains the implementation of "`LaSO: Label-Set Operations networks for multi-label few-shot learning <https://arxiv.org/abs/1902.09811>`_
+" by Alfassy et al. 
+It was posted on arxiv in Feb 2019 and will be presented in CVPR 2019.
+
+In this paper we have presented the label set manipulation concept and have demonstrated its utility for a new and challenging
+task of the multi-label few-shot classification. Our results show
+that label set manipulation holds a good potential for this and potentially other interesting applications, and we hope that this paper
+will convince more researchers to look into this interesting problem.
+
+The code here includes a training script to train new LaSO networks and test scripts for both precision and image retrieval.
+
+Running the code
+==================
+Setup
+------------------
+- Create a conda environment which will automatically install necessary packages.
 
 
-.. image:: https://img.shields.io/pypi/v/oneshot.svg
-        :target: https://pypi.python.org/pypi/oneshot
+ $ conda create --name myenv --file spec-file.txt
 
-.. image:: https://img.shields.io/travis/amitaid/oneshot.svg
-        :target: https://travis-ci.org/amitaid/oneshot
-
-.. image:: https://readthedocs.org/projects/oneshot/badge/?version=latest
-        :target: https://oneshot.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
+- Download the coco data, save it and point to it in the script.
+- Install the experiment package from: link
+- clone this git directory
 
 
+ $ cd LaSO 
+
+ $ python setup.py build develop 
+
+ 
+
+Running the code
+------------------
+- In order to run LaSO, training you will need a backbone, you can train your own backbone (code not provided) or just use one of the two base model which we have provided (Inception/ Resnet)
+- 
+
+Train LaSO from scratch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Leave variables which have a default value to their default value.
+
+ $ cd scripts_coco
+
+ $ python train_setops_stripped.py --inception_transform_input=False --resume_path=/dccstor/faceid/results/train_coco_resnet/0198_968f3cd/1174695/190117_081837 --resume_epoch=49 --init_inception=False --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --base_network_name=resnet50 --crop_size=224 --epochs=5 --train_base=False
+
+Reproduce the paper's results
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To test mAP precision do:
+
+Leave variables which have a default value to their default value.
+
+ $ cd scripts_coco
+
+ $ python test_precision.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True
+
+Toggle unseen to True to test for unseen during training classes
+
+To test retrieval do:
+
+Leave variables which have a default value to their default value.
+
+ $ cd scripts_coco
+
+ $ python test_retrieval.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True --metric=minkowski --tree_type=BallTree
 
 
-Experiments in One-Shot deeplearning
+
+Generate the Resnet model's results
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To test mAP precision do:
+
+Leave variables which have a default value to their default value.
+
+ $ cd scripts_coco
+
+ $ python test_precision.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels/resnet_model/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10
+
+ $ python test_precision.py --unseen=True --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels/resnet_model/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10
+
+To test retrieval do:
+
+Leave variables which have a default value to their default value.
+
+ $ cd scripts_coco
+
+ $ python test_retrieval.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels/resnet_model/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10 --metric=minkowski --tree_type=BallTree
+
+Toggle unseen to True to test for unseen during training classes
+
+Expected results
+^^^^^^^^^^^^^^^^
+
+.. image:: https://i.ibb.co/GkYdnM2/readme-results-table.png
 
 
-* Free software: MIT license
-* Documentation: https://oneshot.readthedocs.io.
+Generate the augmentation model's results
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Paper model 1 shot -
 
-Features
---------
+ $ Python test_augmentation.py --base_network_name='Inception3' --batch_size=4 --checkpoint='/dccstor/alfassy/saved_models/' --class_cap=1 --class_ind_dict_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels/cocoUsedIndRand12018.11.2.19:39ClassIdxDict16.pkl' --classifier_name='Inception3Classifier' --coco_path='/dccstor/leonidka1/data/coco' --crop_size=299  --g_inner_dim=2048 --init_inception=1 --latent_dim=2048 --lr=0.01 --n_epochs=50 --paper_reproduce=1 --resume_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels' --sets_basic_block_name='SetopResBasicBlock' --sets_block_name='SetopResBlock_v1' --sets_network_name='SetOpsResModule' --used_ind_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels/cocoUsedIndRand12018.11.2.19:39usedIndices.pkl'
 
-* TODO
+Paper model 5 shot - 
 
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+ $ Python test_augmentation.py --base_network_name='Inception3' --batch_size=4 --checkpoint='/dccstor/alfassy/saved_models/' --class_cap=5 --class_ind_dict_path='/dccstor/alfassy/finalLaSO/code_release/data/coco1ShotEpisodeClassIdxDict.pkl' --classifier_name='Inception3Classifier' --coco_path='/dccstor/leonidka1/data/coco' --crop_size=299  --g_inner_dim=2048 --init_inception=1 --latent_dim=2048 --lr=0.01 --n_epochs=50 --paper_reproduce=1 --resume_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels' --sets_basic_block_name='SetopResBasicBlock' --sets_block_name='SetopResBlock_v1' --sets_network_name='SetOpsResModule' --used_ind_path='/dccstor/alfassy/finalLaSO/code_release/data/coco1ShotEpisodeUsedIndices.pkl'
