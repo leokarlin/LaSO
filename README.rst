@@ -18,14 +18,14 @@ Running the code
 ==================
 Setup
 ------------------
-- Create a conda environment which will automatically install necessary packages.
-::
+- Create a conda environment which will automatically install necessary packages.:
+
  $ conda create --name myenv --file spec-file.txt
 
 - Download the coco data, save it and point to it in the script.
 - Install the experiment package from: link
-- clone this git directory
-::
+- clone this git directory:
+
  $ cd LaSO 
 
  $ python setup.py build develop 
