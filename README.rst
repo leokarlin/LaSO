@@ -23,9 +23,9 @@ Setup
 
  $ conda create --name myenv --file spec-file.txt
 
-- Download the coco data, save it and point to it in the script.
-- Install the experiment package from: https://drive.google.com/drive/folders/1FWg9gWM37SXk-bYOBH3-3Oe7uayzfiOd?usp=sharing
+- Download the coco data, save it and point to it in the script or flags.
 - clone this git directory
+- Download the pretrained models - https://drive.google.com/drive/folders/1FWg9gWM37SXk-bYOBH3-3Oe7uayzfiOd?usp=sharing
 
 
  $ cd LaSO 
