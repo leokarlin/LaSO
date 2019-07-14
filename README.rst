@@ -42,6 +42,11 @@ Running the code
 Train LaSO from scratch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Leave variables which have a default value to their default value.
+This code supports MLflow, you just need to set the environment variable MLFLOW_SERVER with the adress of your mlflow server.
+
+We used a remote mlflow server, the server creation command is: $mlflow server --host 0.0.0.0 --file-store <BASE_STORAGE>/mlflow/mlruns 
+
+more information can be find in the mlflow website: https://www.mlflow.org/docs/latest/tutorial.html
 
 running training using resnet:
 
