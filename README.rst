@@ -24,7 +24,7 @@ Setup
  $ conda create --name myenv --file spec-file.txt
 
 - Download the coco data, save it and point to it in the script.
-- Install the experiment package from: https://drive.google.com/open?id=1qiK1oAE_K90KaEVvEmlTqwKRdCcbCpIW
+- Install the experiment package from: https://drive.google.com/drive/folders/1FWg9gWM37SXk-bYOBH3-3Oe7uayzfiOd?usp=sharing
 - clone this git directory
 
 
