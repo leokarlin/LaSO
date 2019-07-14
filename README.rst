@@ -37,16 +37,23 @@ Setup
 
 Running the code
 ------------------
-- In order to run LaSO, training you will need a backbone, you can train your own backbone (code not provided) or just use one of the two base model which we have provided (Inception/ Resnet)
-- 
+- In order to train the LaSO networks, you will need a backbone, you can train your own backbone (code not provided) or just use one of the two base models which we have provided (Inception/ Resnet)
 
 Train LaSO from scratch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Leave variables which have a default value to their default value.
 
+running training using resnet:
+
  $ cd scripts_coco
 
- $ python train_setops_stripped.py --inception_transform_input=False --resume_path=/dccstor/faceid/results/train_coco_resnet/0198_968f3cd/1174695/190117_081837 --resume_epoch=49 --init_inception=False --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --base_network_name=resnet50 --crop_size=224 --epochs=5 --train_base=False
+ $ python train_setops_stripped.py --inception_transform_input=False --resume_path=<path_to_LaSO_models>/resnet_base_model_only --resume_epoch=49 --init_inception=False --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=2 --base_network_name=resnet50 --crop_size=224 --epochs=50 --train_base=False
+
+running training using inception paper model:
+
+ $ cd scripts_coco
+
+ $ python train_setops_stripped.py --inception_transform_input=False --resume_path=<path_to_LaSO_models>/paperBaseModel --init_inception=True --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=2 --base_network_name=Inception3 --crop_size=299 --epochs=50 --train_base=False
 
 Reproduce the paper's results
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
