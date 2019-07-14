@@ -12,7 +12,7 @@ task of the multi-label few-shot classification. Our results show
 that label set manipulation holds a good potential for this and potentially other interesting applications, and we hope that this paper
 will convince more researchers to look into this interesting problem.
 
-The code here includes a training script to train new LaSO networks and test scripts for both precision and image retrieval.
+The code here includes a training script to train new LaSO networks and test scripts for precision, image retrieval and multi-label few shot classification.
 
 Running the code 
 ==================
