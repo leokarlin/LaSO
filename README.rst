@@ -64,7 +64,7 @@ Leave variables which have a default value to their default value.
 
  $ cd scripts_coco
 
- $ python test_precision.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True
+ $ python test_precision.py --unseen=False --resume_path=<path_to_LaSO_models> --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True
 
 Toggle unseen to True to test for unseen during training classes
 
@@ -74,7 +74,7 @@ Leave variables which have a default value to their default value.
 
  $ cd scripts_coco
 
- $ python test_retrieval.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True --metric=minkowski --tree_type=BallTree
+ $ python test_retrieval.py --unseen=False --resume_path=<path_to_LaSO_models> --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=Inception3 --init_inception=True --crop_size=299 --skip_tests=1 --paper_reproduce=True --metric=minkowski --tree_type=BallTree
 
 
 
@@ -87,9 +87,9 @@ Leave variables which have a default value to their default value.
 
  $ cd scripts_coco
 
- $ python test_precision.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels/resnet_model/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10
+ $ python test_precision.py --unseen=False --resume_path=<path_to_LaSO_models>/resnet_LaSO_models/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10
 
- $ python test_precision.py --unseen=True --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels/resnet_model/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10
+ $ python test_precision.py --unseen=True --resume_path=<path_to_LaSO_models>/resnet_LaSO_models/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10
 
 To test retrieval do:
 
@@ -97,7 +97,7 @@ Leave variables which have a default value to their default value.
 
  $ cd scripts_coco
 
- $ python test_retrieval.py --unseen=False --resume_path=/dccstor/alfassy/finalLaSO/code_release/trainedModels/resnet_model/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10 --metric=minkowski --tree_type=BallTree
+ $ python test_retrieval.py --unseen=False --resume_path=<path_to_LaSO_models>/resnet_LaSO_models/ --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=1 --resume_epoch=4 --base_network_name=resnet50 --init_inception=False --crop_size=299 --skip_tests=1 --avgpool_kernel=10 --metric=minkowski --tree_type=BallTree
 
 Toggle unseen to True to test for unseen during training classes
 
@@ -112,8 +112,8 @@ Generate the augmentation model's results
 
 Paper model 1 shot -
 
- $ Python test_augmentation.py --base_network_name='Inception3' --batch_size=4 --checkpoint='/dccstor/alfassy/saved_models/' --class_cap=1 --class_ind_dict_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels/cocoUsedIndRand12018.11.2.19:39ClassIdxDict16.pkl' --classifier_name='Inception3Classifier' --coco_path='/dccstor/leonidka1/data/coco' --crop_size=299  --g_inner_dim=2048 --init_inception=1 --latent_dim=2048 --lr=0.01 --n_epochs=50 --paper_reproduce=1 --resume_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels' --sets_basic_block_name='SetopResBasicBlock' --sets_block_name='SetopResBlock_v1' --sets_network_name='SetOpsResModule' --used_ind_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels/cocoUsedIndRand12018.11.2.19:39usedIndices.pkl'
+ $ Python test_augmentation.py --base_network_name='Inception3' --batch_size=4 --checkpoint='/dccstor/alfassy/saved_models/' --class_cap=1 --class_ind_dict_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels/cocoUsedIndRand12018.11.2.19:39ClassIdxDict16.pkl' --classifier_name='Inception3Classifier' --coco_path='/dccstor/leonidka1/data/coco' --crop_size=299  --g_inner_dim=2048 --init_inception=1 --latent_dim=2048 --lr=0.01 --n_epochs=50 --paper_reproduce=1 --resume_path=<path_to_LaSO_models> --sets_basic_block_name='SetopResBasicBlock' --sets_block_name='SetopResBlock_v1' --sets_network_name='SetOpsResModule' --used_ind_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels/cocoUsedIndRand12018.11.2.19:39usedIndices.pkl'
 
 Paper model 5 shot - 
 
- $ Python test_augmentation.py --base_network_name='Inception3' --batch_size=4 --checkpoint='/dccstor/alfassy/saved_models/' --class_cap=5 --class_ind_dict_path='/dccstor/alfassy/finalLaSO/code_release/data/coco1ShotEpisodeClassIdxDict.pkl' --classifier_name='Inception3Classifier' --coco_path='/dccstor/leonidka1/data/coco' --crop_size=299  --g_inner_dim=2048 --init_inception=1 --latent_dim=2048 --lr=0.01 --n_epochs=50 --paper_reproduce=1 --resume_path='/dccstor/alfassy/finalLaSO/code_release/trainedModels' --sets_basic_block_name='SetopResBasicBlock' --sets_block_name='SetopResBlock_v1' --sets_network_name='SetOpsResModule' --used_ind_path='/dccstor/alfassy/finalLaSO/code_release/data/coco1ShotEpisodeUsedIndices.pkl'
+ $ Python test_augmentation.py --base_network_name='Inception3' --batch_size=4 --checkpoint='/dccstor/alfassy/saved_models/' --class_cap=5 --class_ind_dict_path='/dccstor/alfassy/finalLaSO/code_release/data/coco1ShotEpisodeClassIdxDict.pkl' --classifier_name='Inception3Classifier' --coco_path='/dccstor/leonidka1/data/coco' --crop_size=299  --g_inner_dim=2048 --init_inception=1 --latent_dim=2048 --lr=0.01 --n_epochs=50 --paper_reproduce=1 --resume_path=<path_to_LaSO_models> --sets_basic_block_name='SetopResBasicBlock' --sets_block_name='SetopResBlock_v1' --sets_network_name='SetOpsResModule' --used_ind_path='/dccstor/alfassy/finalLaSO/code_release/data/coco1ShotEpisodeUsedIndices.pkl'
