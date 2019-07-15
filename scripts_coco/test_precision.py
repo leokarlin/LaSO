@@ -60,6 +60,7 @@ class Main(Experiment):
     #
     resume_path = Unicode(u"/dccstor/alfassy/finalLaSO/code_release/paperModels", config=True, help="Resume from checkpoint file (requires using also '--resume_epoch'.")
     resume_epoch = Int(0, config=True, help="Epoch to resume (requires using also '--resume_path'.")
+    coco_path = Unicode(u"/tmp/aa/coco", config=True, help="path to local coco dataset path")
     init_inception = Bool(True, config=True, help="Initialize the inception networks using the paper's base network.")
 
     #
@@ -299,8 +300,8 @@ class Main(Experiment):
 
     def setup_datasets(self):
         """Load the training datasets."""
-
-        copy_coco_data()
+        # TODO: comment out if you don't want to copy coco to /tmp/aa
+        # copy_coco_data()
 
         logging.info("Setting up the datasets.")
         CocoDatasetPairs = getattr(alfassy, "CocoDatasetPairs")
@@ -323,7 +324,7 @@ class Main(Experiment):
             ]
         )
         pair_dataset = CocoDatasetPairs(
-            root_dir="/tmp/aa/coco",
+            root_dir=self.coco_path,
             set_name='val2014',
             unseen_set=self.unseen,
             transform=val_transform,
@@ -337,7 +338,7 @@ class Main(Experiment):
             num_workers=self.num_workers
         )
         pair_dataset_sub = CocoDatasetPairsSub(
-            root_dir="/tmp/aa/coco",
+            root_dir=self.coco_path,
             set_name='val2014',
             unseen_set=self.unseen,
             transform=val_transform,

@@ -1,7 +1,5 @@
 """Train the set-operations models on the COCO dataset.
 
-Note:
-    This code is a fusion of my and Amit's Alfassy code.
 """
 
 import logging
@@ -52,13 +50,11 @@ setupCUDAdevice()
 LOG_INTERVAL = 10
 CKPT_PREFIX = 'networks'
 
-ALFASSY_MODEL = "/dccstor/alfassy/saved_models/inception_trainCocoIncHalf642018.10.9.13:44epoch:30"
-
 #
 # Seed the random states
 #
 np.random.seed(0)
-random_state  = np.random.RandomState(0)
+random_state = np.random.RandomState(0)
 
 #import warnings
 #warnings.filterwarnings("error")
@@ -334,6 +330,7 @@ class Main(MLflowExperiment):
     #
     resume_path = Unicode(u"/dccstor/faceid/results/train_coco_resnet/0198_968f3cd/1174695/190117_081837/", config=True, help="Resume from checkpoint file (requires using also '--resume_epoch'.")
     resume_epoch = Int(49, config=True, help="Epoch to resume (requires using also '--resume_path'.")
+    coco_path = Unicode(u"/tmp/aa/coco", config=True, help="path to local coco dataset path")
     init_inception = Bool(False, config=True, help="Initialize the inception networks using ALFASSY's network.")
 
     #
@@ -391,8 +388,8 @@ class Main(MLflowExperiment):
     dataset_size_ratio = Int(4, config=True, help="Multiplier of training dataset.").tag(parameter=True)
 
     def run(self):
-
-        copy_coco_data()
+        # TODO: comment out if you don't want to copy coco to /tmp/aa
+        # copy_coco_data()
 
         #
         # create model
@@ -693,7 +690,7 @@ class Main(MLflowExperiment):
             if self.init_inception:
                 logging.info("Initialize inception model using Amit's networks.")
 
-                checkpoint = torch.load(ALFASSY_MODEL)
+                checkpoint = torch.load(self.resume_path)
 
                 base_model = Inception3(aux_logits=False, transform_input=True)
                 base_model.load_state_dict(
@@ -715,15 +712,14 @@ class Main(MLflowExperiment):
 
         if self.resume_path:
             logging.info("Resuming the models.")
-
             models_path = Path(self.resume_path)
-
-            base_model.load_state_dict(
-                torch.load(sorted(models_path.glob("networks_base_model_{}*.pth".format(self.resume_epoch)))[-1])
-            )
-            classifier.load_state_dict(
-                torch.load(sorted(models_path.glob("networks_classifier_{}*.pth".format(self.resume_epoch)))[-1])
-            )
+            if self.base_network_name.lower().startswith("resnet"):
+                base_model.load_state_dict(
+                    torch.load(sorted(models_path.glob("networks_base_model_{}*.pth".format(self.resume_epoch)))[-1])
+                )
+                classifier.load_state_dict(
+                    torch.load(sorted(models_path.glob("networks_classifier_{}*.pth".format(self.resume_epoch)))[-1])
+                )
 
             setops_models_paths = sorted(models_path.glob("networks_setops_model_{}*.pth".format(self.resume_epoch)))
             if len(setops_models_paths) > 0:
@@ -763,14 +759,14 @@ class Main(MLflowExperiment):
         )
 
         train_dataset = CocoDatasetPairs(
-            root_dir="/tmp/aa/coco",
+            root_dir=self.coco_path,
             set_name='train2014',
             transform=train_transform,
             dataset_size_ratio=self.dataset_size_ratio
         )
         train_subset_dataset = Subset(train_dataset, range(0, len(train_dataset), 5*self.dataset_size_ratio))
         val_dataset = CocoDatasetPairs(
-            root_dir="/tmp/aa/coco",
+            root_dir=self.coco_path,
             set_name='val2014',
             transform=val_transform,
         )

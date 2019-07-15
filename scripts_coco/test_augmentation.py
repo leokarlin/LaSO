@@ -33,7 +33,7 @@ parser.add_argument('--b2', type=float, default=0.999, help='adam: decay of firs
 parser.add_argument('--latent_dim', type=int, default=2048, help='dimensionality of the latent space')
 parser.add_argument('--n_classes', type=int, default=80, help='number of classes for dataset')
 parser.add_argument('--env_name', type=str, default='FewShotLaSO', help='env name for file naming')
-parser.add_argument('--checkpoint', default='/dccstor/alfassy/saved_models/', type=str, metavar='PATH',
+parser.add_argument('--results_path', default='/dccstor/alfassy/saved_models/', type=str, metavar='PATH',
                     help='path to save checkpoint (default: /dccstor/alfassy/saved_models/)')
 parser.add_argument('--coco_path', default='/dccstor/leonidka1/data/coco', type=str, metavar='PATH',
                     help='path to the coco data folder(default:/dccstor/leonidka1/data/coco)')
@@ -365,7 +365,7 @@ for epoch in range(opt.n_epochs):
         save_checkpoint({'epoch': epoch + 1, 'state_dict': classifier.state_dict(),
                          'acc': classifier_test_real_accuracy_IOU, 'best_acc': best_test_acc,
                          'optimizer': optimizer_C.state_dict()},
-                        is_best, epoch, checkpoint=opt.checkpoint, filename=classifier_file_name)
+                        is_best, epoch, checkpoint=opt.results_path, filename=classifier_file_name)
 
 
 # save model
@@ -373,6 +373,6 @@ classifier_file_name = 'classifier' + str(vis_file_out) + 'final'
 save_checkpoint({'epoch': epoch + 1, 'state_dict': classifier.state_dict(),
                  'acc': classifier_test_real_accuracy_IOU, 'best_acc': best_test_acc,
                  'optimizer': optimizer_C.state_dict()},
-                is_best, epoch, checkpoint=opt.checkpoint, filename=classifier_file_name)
+                is_best, epoch, checkpoint=opt.results_path, filename=classifier_file_name)
 
 
