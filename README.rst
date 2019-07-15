@@ -37,8 +37,6 @@ Setup
 
 Running the code
 ------------------
-- In order to train the LaSO networks, you will need a backbone, you can train your own backbone (code not provided) or just use one of the two base models which we have provided (Inception/ Resnet)
-
 Train LaSO from scratch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Leave variables which have a default value to their default value.
