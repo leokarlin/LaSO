@@ -23,7 +23,7 @@ from oneshot.ignite.metrics import mAP
 from oneshot.ignite.metrics import MultiLabelSoftMarginIOUaccuracy
 from oneshot.pytorch import FocalLoss
 from oneshot import setops_models
-from oneshot.setops_models import Inception3
+from oneshot.setops_models imporgt Inception3
 from oneshot.utils import conditional
 
 from experiment import MLflowExperiment
