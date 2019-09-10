@@ -2,9 +2,10 @@
 
 """
 
+import os
+# os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 import logging
 import numpy as np
-import os
 from pathlib import Path
 from PIL import Image
 
@@ -29,7 +30,7 @@ from experiment import MLflowExperiment
 # from experiment import TensorboardXExperiment
 # from experiment import VisdomExperiment
 
-from CCC import setupCUDAdevice
+from oneshot.utils import setupCUDAdevice
 
 from ignite.engine import Engine
 from ignite.engine import Events
@@ -45,7 +46,7 @@ from ignite._utils import convert_tensor
 
 from traitlets import Bool, Enum, Int, Float, Unicode
 
-setupCUDAdevice()
+# setupCUDAdevice()
 
 LOG_INTERVAL = 10
 CKPT_PREFIX = 'networks'
