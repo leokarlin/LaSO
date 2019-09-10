@@ -2,10 +2,16 @@
 
 """
 
+<<<<<<< HEAD
 import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 import logging
 import numpy as np
+=======
+import logging
+import numpy as np
+import os
+>>>>>>> official/master
 from pathlib import Path
 from PIL import Image
 
@@ -23,14 +29,22 @@ from oneshot.ignite.metrics import mAP
 from oneshot.ignite.metrics import MultiLabelSoftMarginIOUaccuracy
 from oneshot.pytorch import FocalLoss
 from oneshot import setops_models
+<<<<<<< HEAD
 from oneshot.setops_models imporgt Inception3
+=======
+from oneshot.setops_models import Inception3
+>>>>>>> official/master
 from oneshot.utils import conditional
 
 from experiment import MLflowExperiment
 # from experiment import TensorboardXExperiment
 # from experiment import VisdomExperiment
 
+<<<<<<< HEAD
 from oneshot.utils import setupCUDAdevice
+=======
+from CCC import setupCUDAdevice
+>>>>>>> official/master
 
 from ignite.engine import Engine
 from ignite.engine import Events
@@ -46,7 +60,11 @@ from ignite._utils import convert_tensor
 
 from traitlets import Bool, Enum, Int, Float, Unicode
 
+<<<<<<< HEAD
 # setupCUDAdevice()
+=======
+setupCUDAdevice()
+>>>>>>> official/master
 
 LOG_INTERVAL = 10
 CKPT_PREFIX = 'networks'

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 class conditional(object):
     """Wrap another context manager and enter it only if condition is true.
@@ -42,3 +43,20 @@ def setupCUDAdevice(cuda_visible_device=None):
             cuda_visible_device = input("CUDA_VISIBLE_DEVICES: ")
 
         os.environ["CUDA_VISIBLE_DEVICES"] = str(cuda_visible_device)
+=======
+class conditional(object):
+    """Wrap another context manager and enter it only if condition is true.
+    """
+
+    def __init__(self, condition, contextmanager):
+        self.condition = condition
+        self.contextmanager = contextmanager
+
+    def __enter__(self):
+        if self.condition:
+            return self.contextmanager.__enter__()
+
+    def __exit__(self, *args):
+        if self.condition:
+            return self.contextmanager.__exit__(*args)
+>>>>>>> official/master
