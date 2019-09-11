@@ -24,9 +24,9 @@ Setup
  $ conda create --name myenv --file spec-file.txt
 
 - Download the coco data, save it and point to it in the script or flags.
-- clone this git directory
+- Clone this git directory
 - Download the pretrained models - https://drive.google.com/drive/folders/1FWg9gWM37SXk-bYOBH3-3Oe7uayzfiOd?usp=sharing
-- Install this package https://github.com/amitibo/experiment by cloning and $python setup.py build develop
+- Manually install needed packages -
 
  $ cd LaSO 
 
