@@ -50,7 +50,7 @@ running training using resnet:
 
  $ cd scripts_coco
 
- $ python train_setops_stripped.py --resume_path=<path_to_LaSO_models>/resnet_base_model_only --resume_epoch=49 --init_inception=False --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=2 --base_network_name=resnet50 --crop_size=224 --epochs=50 --train_base=False --coco_path=<path to local coco folder> --results_path=<base path for results>
+ $ python train_setops_stripped.py --resume_path=<path_to_LaSO_models>/resnet_base_model_only --resume_epoch=4 --init_inception=False --sets_basic_block_name=SetopResBasicBlock --sets_block_name=SetopResBlock_v1 --sets_network_name=SetOpsResModule --ops_latent_dim=8092 --ops_layer_num=2 --base_network_name=resnet50 --crop_size=224 --epochs=50 --train_base=False --coco_path=<path to local coco folder> --results_path=<base path for results>
 
 running training using inception paper model:
 
