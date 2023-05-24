@@ -25,7 +25,7 @@ Setup
 
 - Download the coco data, save it and point to it in the script or flags.
 - Clone this git directory
-- Download the pretrained models - https://drive.google.com/drive/folders/1FWg9gWM37SXk-bYOBH3-3Oe7uayzfiOd?usp=sharing
+- Download the pretrained models - https://ai-vision-public.s3.eu.cloud-object-storage.appdomain.cloud/LaSO/LaSO_models.zip
 - Manually install needed packages -
 
  $ cd LaSO 
